@@ -144,7 +144,7 @@ function Header({ onOpenAuth }) {
                     <div className="nav-middle">
                         <Link to="/category/gfx" className="category">GFX SERIES</Link>
                         <Link to="/category/x-series" className="category">X SERIES</Link>
-                        <Link to="/category/ong-kinh" className="category">Ống kính</Link>
+                        <Link to="/category/ong-kinh" className="category">ỐNG KÍNH</Link>
                         <Link to="/category/instax" className="category">INSTAX</Link>
                         <Link to="/category/film" className="category">FILM</Link>
                         <Link to="/category/phu-kien" className="category">PHỤ KIỆN</Link>
