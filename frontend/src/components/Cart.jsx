@@ -9,8 +9,9 @@ import {
     removeGuestCartItem,
     updateGuestCartItem,
 } from "../utils/cartUtils";
+import { apiPath } from "../utils/api";
 
-const API = "http://127.0.0.1:8000/api";
+const API = apiPath();
 
 const paymentMethods = [
     { id: "vietqr", label: "VIETQR", description: "Quét mã QR để chuyển khoản nhanh qua ứng dụng ngân hàng." },

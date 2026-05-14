@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './Profile.css';
+import { apiPath } from '../utils/api';
 
-const API = 'http://127.0.0.1:8000/api';
+const API = apiPath();
 
 const EMPTY_FORM = { full_name: '', phone: '', address: '', is_default: false };
 

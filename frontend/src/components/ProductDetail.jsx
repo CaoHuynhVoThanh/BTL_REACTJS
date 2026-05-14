@@ -8,6 +8,7 @@ import 'swiper/css/pagination';
 
 import './ProductDetail.css';
 import { addToGuestCart } from '../utils/cartUtils';
+import { apiPath, cachedJsonFetch, cacheTtl } from '../utils/api';
 
 function ProductDetail() {
   const { id } = useParams();
@@ -27,8 +28,10 @@ function ProductDetail() {
     const fetchProductDetail = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/products/${id}/`);
-        const data = await response.json();
+        const data = await cachedJsonFetch(apiPath(`/products/${id}/`), {
+          cacheKey: `product:${id}`,
+          ttl: cacheTtl.long,
+        });
         setProduct(data);
         
         // Mặc định chọn màu và variant đầu tiên
@@ -87,7 +90,7 @@ function ProductDetail() {
 
     // ── Logged-in: gọi API ──
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/cart/add/", {
+      const response = await fetch(apiPath("/cart/add/"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

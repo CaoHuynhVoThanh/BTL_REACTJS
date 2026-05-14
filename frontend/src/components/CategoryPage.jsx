@@ -3,6 +3,7 @@ import { useState, useEffect } from "react"
 import { useParams, useLocation } from "react-router-dom"
 import Item from "./Item"
 import filterConfig from "./filterConfig"
+import { apiPath, cachedJsonFetch, cacheTtl } from "../utils/api"
 
 function CategoryPage() {
     const { category } = useParams();
@@ -78,9 +79,8 @@ function CategoryPage() {
                 }
             });
 
-            const url = `http://127.0.0.1:8000/api/products/?${params.toString()}`;
-            const response = await fetch(url);
-            const data = await response.json();
+            const url = apiPath(`/products/?${params.toString()}`);
+            const data = await cachedJsonFetch(url, { ttl: cacheTtl.medium });
             
             if (data.results) {
                 setProducts(data.results);

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { useState, useEffect } from "react"
 import "./ItemCart.css"
+import { apiPath, cachedJsonFetch, cacheTtl } from "../utils/api"
 
 function ItemCart({ item, onUpdateQuantity, onRemove, onChangeVariant, onChangeColor }) {
     const [variants, setVariants] = useState([]);
@@ -11,12 +12,12 @@ function ItemCart({ item, onUpdateQuantity, onRemove, onChangeVariant, onChangeC
         if (!item.product_id) return;
         const fetchOptions = async () => {
             try {
-                const res = await fetch(`http://127.0.0.1:8000/api/products/${item.product_id}/`);
-                if (res.ok) {
-                    const data = await res.json();
-                    setVariants(data.variants || []);
-                    setColors(data.colors || []);
-                }
+                const data = await cachedJsonFetch(apiPath(`/products/${item.product_id}/`), {
+                    cacheKey: `product:${item.product_id}`,
+                    ttl: cacheTtl.long,
+                });
+                setVariants(data.variants || []);
+                setColors(data.colors || []);
             } catch (err) {
                 console.error("Error fetching product options:", err);
             }

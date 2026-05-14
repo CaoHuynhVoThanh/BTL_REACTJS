@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import { Link } from 'react-router-dom';
+import { apiPath, cachedJsonFetch, cacheTtl } from '../utils/api';
 
 const formatProductPrice = (product) => {
   const formatPrice = (price) => (
@@ -23,8 +24,10 @@ function ProductShow4() {
   useEffect(() => {
     const fetchNewestProducts = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/products/');
-        const data = await response.json();
+        const data = await cachedJsonFetch(apiPath('/products/'), {
+          cacheKey: 'home:newest-products',
+          ttl: cacheTtl.medium,
+        });
         setProducts(data.results || []);
       } catch (error) {
         console.error("Error fetching newest products:", error);

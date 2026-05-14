@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom"
 import "./Header.css"
+import { apiPath, cachedJsonFetch, cacheTtl } from "../utils/api"
 
 const moreNavLinks = [
     { to: "/pages/ve-chung-toi", label: "Về chúng tôi" },
@@ -24,8 +25,8 @@ function Header({ onOpenAuth }) {
         const fetchSuggestions = async () => {
             if (searchQuery.trim().length > 1) {
                 try {
-                    const response = await fetch(`http://127.0.0.1:8000/api/products/?search=${encodeURIComponent(searchQuery)}&page_size=3`);
-                    const data = await response.json();
+                    const url = apiPath(`/products/?search=${encodeURIComponent(searchQuery)}&page_size=3`);
+                    const data = await cachedJsonFetch(url, { ttl: cacheTtl.short });
                     setSuggestions(data.results || []);
                     setShowSuggestions(true);
                 } catch (error) {

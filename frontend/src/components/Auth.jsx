@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './Auth.css';
+import { apiPath } from '../utils/api';
 
-const API = 'http://127.0.0.1:8000/api/auth';
+const API = apiPath('/auth');
 const LOGO_SRC = '/FUJIFILM-Logo-white.png';
 
 /* ─────────────────────────── helpers ──────────────────────────── */
