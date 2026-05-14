@@ -121,6 +121,8 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     def get_specs(self, obj):
         result = {}
         for attr in obj.attributes.all():
+            if attr.group in {"Bo loc", "Bộ lọc"}:
+                continue
             group = attr.group or "Thông số khác"
             result.setdefault(group, [])
             result[group].append({"name": attr.name, "value": attr.value})

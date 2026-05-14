@@ -1,4 +1,4 @@
-from django.db.models import Max, Min
+from django.db.models import Max, Min, Q
 from rest_framework import generics, filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
@@ -124,9 +124,12 @@ class ProductListView(generics.ListAPIView):
             if key not in exclude_params and value:
                 # Chuyển slug key về tên thuộc tính (ví dụ: loai_may -> Loại máy)
                 # Ở đây ta dùng icontains để linh hoạt hơn
-                attr_name = key.replace('_', ' ')
+                attr_name = key.replace('_', ' ').replace('-', ' ')
                 val_list = value.split(',')
-                qs = qs.filter(attributes__name__icontains=attr_name, attributes__value__in=val_list)
+                qs = qs.filter(
+                    Q(attributes__name__icontains=key) | Q(attributes__name__icontains=attr_name),
+                    attributes__value__in=val_list,
+                )
 
         return qs.distinct()
 

@@ -6,6 +6,30 @@ const API = 'http://127.0.0.1:8000/api';
 
 const EMPTY_FORM = { full_name: '', phone: '', address: '', is_default: false };
 
+const getStoredUser = () => {
+    try {
+        return JSON.parse(localStorage.getItem('user') || 'null');
+    } catch {
+        return null;
+    }
+};
+
+const getFullName = (user) => {
+    if (!user) return '';
+    return [user.last_name, user.first_name].filter(Boolean).join(' ').trim() || user.username || '';
+};
+
+const splitFullName = (fullName) => {
+    const parts = fullName.trim().split(/\s+/).filter(Boolean);
+    if (parts.length <= 1) {
+        return { first_name: parts[0] || '', last_name: '' };
+    }
+    return {
+        first_name: parts[parts.length - 1],
+        last_name: parts.slice(0, -1).join(' '),
+    };
+};
+
 function Profile({ onOpenAuth }) {
     const location = useLocation();
     const getInitialTab = () => new URLSearchParams(location.search).get('tab') || 'account';
@@ -13,12 +37,16 @@ function Profile({ onOpenAuth }) {
     const navigate = useNavigate();
 
     const token = localStorage.getItem('access');
+    const storedUser = getStoredUser();
 
     /* ── Account info ──────────────────────────────────────────── */
     const [formData, setFormData] = useState({
-        fullName: '', phone: '', email: '',
+        fullName: getFullName(storedUser), phone: storedUser?.phone || '', email: storedUser?.email || '',
         currentPassword: '', newPassword: '', confirmPassword: ''
     });
+    const [profileLoading, setProfileLoading] = useState(false);
+    const [profileSaving, setProfileSaving] = useState(false);
+    const [passwordSaving, setPasswordSaving] = useState(false);
 
     /* ── Orders ────────────────────────────────────────────────── */
     const [orders, setOrders] = useState([]);
@@ -43,6 +71,44 @@ function Profile({ onOpenAuth }) {
         setNotification({ show: true, type, msg });
         setTimeout(() => setNotification(n => ({ ...n, show: false })), 3000);
     };
+
+    const applyUserToForm = (user) => {
+        setFormData(prev => ({
+            ...prev,
+            fullName: getFullName(user),
+            phone: user?.phone || '',
+            email: user?.email || '',
+        }));
+    };
+
+    const fetchProfile = async () => {
+        if (!token) return;
+        setProfileLoading(true);
+        try {
+            const res = await fetch(`${API}/users/me/`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const user = await res.json();
+                localStorage.setItem('user', JSON.stringify(user));
+                applyUserToForm(user);
+            } else if (res.status === 401) {
+                localStorage.removeItem('access');
+                localStorage.removeItem('refresh');
+                localStorage.removeItem('user');
+                showNotif('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', 'error');
+            }
+        } catch (e) {
+            console.error(e);
+            showNotif('Không thể tải thông tin tài khoản.', 'error');
+        } finally {
+            setProfileLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchProfile();
+    }, [token]);
 
     /* ── Fetch addresses ───────────────────────────────────────── */
     const fetchAddresses = async () => {
@@ -101,19 +167,82 @@ function Profile({ onOpenAuth }) {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSaveProfile = (e) => {
+    const handleSaveProfile = async (e) => {
         e.preventDefault();
-        showNotif('Đã lưu thông tin cá nhân!');
+        if (!token) {
+            onOpenAuth?.();
+            return;
+        }
+
+        const { first_name, last_name } = splitFullName(formData.fullName);
+        setProfileSaving(true);
+        try {
+            const res = await fetch(`${API}/users/me/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    first_name,
+                    last_name,
+                    phone: formData.phone.trim(),
+                })
+            });
+
+            const data = await res.json().catch(() => null);
+            if (res.ok) {
+                localStorage.setItem('user', JSON.stringify(data));
+                applyUserToForm(data);
+                showNotif('Đã lưu thông tin cá nhân!');
+            } else {
+                showNotif(data ? JSON.stringify(data) : 'Không thể lưu thông tin cá nhân.', 'error');
+            }
+        } catch (e) {
+            console.error(e);
+            showNotif('Lỗi kết nối máy chủ.', 'error');
+        } finally {
+            setProfileSaving(false);
+        }
     };
 
-    const handleChangePassword = (e) => {
+    const handleChangePassword = async (e) => {
         e.preventDefault();
+        if (!formData.currentPassword || !formData.newPassword) {
+            showNotif('Vui lòng nhập đầy đủ mật khẩu.', 'error');
+            return;
+        }
         if (formData.newPassword !== formData.confirmPassword) {
             showNotif('Mật khẩu xác nhận không khớp!', 'error');
             return;
         }
-        showNotif('Đã đổi mật khẩu thành công!');
-        setFormData(prev => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
+        setPasswordSaving(true);
+        try {
+            const res = await fetch(`${API}/users/change-password/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    old_password: formData.currentPassword,
+                    new_password: formData.newPassword,
+                })
+            });
+            const data = await res.json().catch(() => null);
+            if (res.ok) {
+                showNotif(data?.detail || 'Đã đổi mật khẩu thành công!');
+                setFormData(prev => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
+            } else {
+                const msg = data?.old_password?.[0] || data?.new_password?.[0] || data?.detail || 'Không thể đổi mật khẩu.';
+                showNotif(msg, 'error');
+            }
+        } catch (e) {
+            console.error(e);
+            showNotif('Lỗi kết nối máy chủ.', 'error');
+        } finally {
+            setPasswordSaving(false);
+        }
     };
 
     /* ── Handlers: addresses ───────────────────────────────────── */
@@ -285,6 +414,8 @@ function Profile({ onOpenAuth }) {
                                     <p style={{ color: '#6b7280' }}>
                                         Vui lòng <button onClick={onOpenAuth} className="auth-link-btn">đăng nhập</button> để xem thông tin.
                                     </p>
+                                ) : profileLoading ? (
+                                    <p style={{ color: '#9ca3af' }}>Đang tải thông tin tài khoản...</p>
                                 ) : (
                                     <form onSubmit={handleSaveProfile} className="profile-form">
                                         <div className="form-group">
@@ -297,9 +428,11 @@ function Profile({ onOpenAuth }) {
                                         </div>
                                         <div className="form-group">
                                             <label>Email</label>
-                                            <input type="email" name="email" value={formData.email} onChange={handleChange} />
+                                            <input type="email" name="email" value={formData.email} readOnly />
                                         </div>
-                                        <button type="submit" className="save-btn">Lưu thông tin</button>
+                                        <button type="submit" className="save-btn" disabled={profileSaving}>
+                                            {profileSaving ? 'Đang lưu...' : 'Lưu thông tin'}
+                                        </button>
                                     </form>
                                 )}
                             </div>
@@ -320,7 +453,9 @@ function Profile({ onOpenAuth }) {
                                             <label>Xác nhận mật khẩu mới</label>
                                             <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="Nhập lại mật khẩu mới" />
                                         </div>
-                                        <button type="submit" className="save-btn password-btn">Đổi mật khẩu</button>
+                                        <button type="submit" className="save-btn password-btn" disabled={passwordSaving}>
+                                            {passwordSaving ? 'Đang đổi...' : 'Đổi mật khẩu'}
+                                        </button>
                                     </form>
                                 </div>
                             )}
