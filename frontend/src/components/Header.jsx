@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import "./Header.css"
 import { apiPath, cachedJsonFetch, cacheTtl } from "../utils/api"
+import { getGuestCart } from "../utils/cartUtils"
 
 const moreNavLinks = [
     { to: "/pages/ve-chung-toi", label: "Về chúng tôi" },
@@ -18,7 +19,13 @@ function Header({ onOpenAuth }) {
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [showMoreNav, setShowMoreNav] = useState(false);
+    const [cartCount, setCartCount] = useState(0);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const countItems = (items = []) => (
+        items.reduce((total, item) => total + Number(item.quantity || 0), 0)
+    );
 
     // Fetch suggestions as user types
     useEffect(() => {
@@ -41,6 +48,43 @@ function Header({ onOpenAuth }) {
         const timeoutId = setTimeout(fetchSuggestions, 300);
         return () => clearTimeout(timeoutId);
     }, [searchQuery]);
+
+    useEffect(() => {
+        const fetchCartCount = async () => {
+            const token = localStorage.getItem("access");
+            if (!token) {
+                setCartCount(countItems(getGuestCart()));
+                return;
+            }
+
+            try {
+                const response = await fetch(apiPath("/cart/"), {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setCartCount(countItems(data.items || []));
+                    return;
+                }
+            } catch (error) {
+                console.error("Error fetching cart count:", error);
+            }
+
+            setCartCount(countItems(getGuestCart()));
+        };
+
+        fetchCartCount();
+
+        window.addEventListener("cart:changed", fetchCartCount);
+        window.addEventListener("storage", fetchCartCount);
+        window.addEventListener("focus", fetchCartCount);
+
+        return () => {
+            window.removeEventListener("cart:changed", fetchCartCount);
+            window.removeEventListener("storage", fetchCartCount);
+            window.removeEventListener("focus", fetchCartCount);
+        };
+    }, [location.pathname]);
 
     const handleSearch = (e) => {
         if (e.key === 'Enter' || e.type === 'click') {
@@ -118,7 +162,16 @@ function Header({ onOpenAuth }) {
                         </div>
                     </div>
                     <div className="notification"><svg className="material-icons" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#CCCCCC"><path d="M160-200v-80h80v-280q0-83 50-147.5T420-792v-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820v28q80 20 130 84.5T720-560v280h80v80H160Zm320-300Zm0 420q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80ZM320-280h320v-280q0-66-47-113t-113-47q-66 0-113 47t-47 113v280Z"/></svg></div>
-                    <div className="cart"><Link to="/cart"><svg className="material-icons" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#CCCCCC"><path d="M223.5-103.5Q200-127 200-160t23.5-56.5Q247-240 280-240t56.5 23.5Q360-193 360-160t-23.5 56.5Q313-80 280-80t-56.5-23.5Zm400 0Q600-127 600-160t23.5-56.5Q647-240 680-240t56.5 23.5Q760-193 760-160t-23.5 56.5Q713-80 680-80t-56.5-23.5ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z"/></svg></Link></div>
+                    <div className="cart">
+                        <Link to="/cart" className="cart-link" aria-label={`Giỏ hàng có ${cartCount} sản phẩm`}>
+                            <svg className="material-icons" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#CCCCCC"><path d="M223.5-103.5Q200-127 200-160t23.5-56.5Q247-240 280-240t56.5 23.5Q360-193 360-160t-23.5 56.5Q313-80 280-80t-56.5-23.5Zm400 0Q600-127 600-160t23.5-56.5Q647-240 680-240t56.5 23.5Q760-193 760-160t-23.5 56.5Q713-80 680-80t-56.5-23.5ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z"/></svg>
+                            {cartCount > 0 && (
+                                <span className="cart-count-badge">
+                                    {cartCount > 99 ? "99+" : cartCount}
+                                </span>
+                            )}
+                        </Link>
+                    </div>
                     <div className="info">
                         {localStorage.getItem('access') ? (
                             <Link to="/profile">

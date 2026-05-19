@@ -136,6 +136,7 @@ function Cart({ onOpenAuth }) {
             if (response.ok) {
                 const data = await response.json();
                 setCartItems(data.items || []);
+                window.dispatchEvent(new Event("cart:changed"));
             } else {
                 const data = await response.json().catch(() => ({}));
                 setCartError(getApiErrorMessage(data, "Không thể cập nhật số lượng."));
@@ -173,6 +174,7 @@ function Cart({ onOpenAuth }) {
                 setSelectedItems((prev) => prev.filter((id) => id !== itemToDelete.id));
                 setShowDeleteModal(false);
                 setItemToDelete(null);
+                window.dispatchEvent(new Event("cart:changed"));
             }
         } catch (error) {
             console.error("Error removing item:", error);
@@ -205,6 +207,7 @@ function Cart({ onOpenAuth }) {
                 body: JSON.stringify({ variant_id: newVariantId, quantity: oldItem.quantity }),
             });
             fetchCart();
+            window.dispatchEvent(new Event("cart:changed"));
         } catch (error) {
             console.error("Error changing variant:", error);
         }
@@ -279,6 +282,7 @@ function Cart({ onOpenAuth }) {
             setShowCheckoutModal(false);
             setSelectedItems([]);
             await fetchCart();
+            window.dispatchEvent(new Event("cart:changed"));
             navigate("/profile?tab=orders");
         } catch (error) {
             console.error("Checkout error:", error);

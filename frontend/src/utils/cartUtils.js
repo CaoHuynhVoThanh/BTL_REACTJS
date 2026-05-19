@@ -7,6 +7,10 @@
 
 const CART_KEY = "guest_cart";
 
+function notifyCartChanged() {
+    window.dispatchEvent(new Event("cart:changed"));
+}
+
 /**
  * Get all items from the guest cart.
  * @returns {Array} Array of cart items
@@ -26,6 +30,7 @@ export function getGuestCart() {
  */
 function saveGuestCart(cart) {
     localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    notifyCartChanged();
 }
 
 /**
@@ -122,6 +127,7 @@ export function removeGuestCartItem(itemId) {
  */
 export function clearGuestCart() {
     localStorage.removeItem(CART_KEY);
+    notifyCartChanged();
 }
 
 /**

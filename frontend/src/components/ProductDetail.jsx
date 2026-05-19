@@ -103,6 +103,7 @@ function ProductDetail() {
       });
 
       if (response.ok) {
+        window.dispatchEvent(new Event("cart:changed"));
         openModal("success", "Đã thêm sản phẩm vào giỏ hàng!");
       } else {
         const errorData = await response.json();
