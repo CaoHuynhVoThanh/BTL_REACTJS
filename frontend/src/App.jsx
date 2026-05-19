@@ -11,6 +11,7 @@ import ProductDetail from './components/ProductDetail.jsx'
 import Auth from './components/Auth.jsx'
 import InfoPage from './components/InfoPage.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
+import ChatBox from './components/ChatBox.jsx'
 
 function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -37,6 +38,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      <ChatBox />
       <Footer />
     </BrowserRouter>
   )
