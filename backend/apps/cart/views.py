@@ -51,6 +51,13 @@ class CartAddView(APIView):
 
         cart = _get_or_create_cart(request.user)
         item, created = CartItem.objects.get_or_create(cart=cart, variant=variant)
+        requested_quantity = quantity if created else item.quantity + quantity
+        if requested_quantity > variant.stock:
+            return Response(
+                {"detail": f"Kho chỉ còn {variant.stock} sản phẩm."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         if not created:
             item.quantity += quantity
         else:
@@ -84,7 +91,14 @@ class CartItemUpdateView(APIView):
 
         serializer = UpdateCartItemSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        item.quantity = serializer.validated_data["quantity"]
+        quantity = serializer.validated_data["quantity"]
+        if quantity > item.variant.stock:
+            return Response(
+                {"detail": f"Kho chỉ còn {item.variant.stock} sản phẩm."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        item.quantity = quantity
         item.save()
 
         cart = _get_or_create_cart(request.user)

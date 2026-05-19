@@ -32,6 +32,7 @@ function Cart({ onOpenAuth }) {
     const [addressesLoading, setAddressesLoading] = useState(false);
     const [checkoutSubmitting, setCheckoutSubmitting] = useState(false);
     const [checkoutError, setCheckoutError] = useState("");
+    const [cartError, setCartError] = useState("");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showCheckoutModal, setShowCheckoutModal] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
@@ -39,6 +40,14 @@ function Cart({ onOpenAuth }) {
 
     const token = localStorage.getItem("access");
     const isGuest = !token;
+
+    const getApiErrorMessage = (data, fallback) => {
+        if (Array.isArray(data?.items) && data.items.length > 0) {
+            return `${data.detail || fallback} ${data.items.join(" ")}`;
+        }
+        if (typeof data?.detail === "string") return data.detail;
+        return fallback;
+    };
 
     const fetchCart = async () => {
         if (isGuest) {
@@ -115,6 +124,7 @@ function Cart({ onOpenAuth }) {
         }
 
         try {
+            setCartError("");
             const response = await fetch(`${API}/cart/${itemId}/`, {
                 method: "PUT",
                 headers: {
@@ -126,9 +136,13 @@ function Cart({ onOpenAuth }) {
             if (response.ok) {
                 const data = await response.json();
                 setCartItems(data.items || []);
+            } else {
+                const data = await response.json().catch(() => ({}));
+                setCartError(getApiErrorMessage(data, "Không thể cập nhật số lượng."));
             }
         } catch (error) {
             console.error("Error updating quantity:", error);
+            setCartError("Lỗi kết nối máy chủ. Vui lòng thử lại.");
         }
     };
 
@@ -253,6 +267,10 @@ function Cart({ onOpenAuth }) {
                 }),
             });
             const data = await response.json().catch(() => ({}));
+            if (!response.ok && (data.detail || data.items)) {
+                setCheckoutError(getApiErrorMessage(data, "Không thể tạo đơn hàng."));
+                return;
+            }
             if (!response.ok) {
                 setCheckoutError(data.detail || JSON.stringify(data) || "Không thể tạo đơn hàng.");
                 return;
@@ -344,6 +362,7 @@ function Cart({ onOpenAuth }) {
                         </div>
                         <p className="vat-note">(Đã bao gồm VAT nếu có)</p>
 
+                        {cartError && <p className="checkout-error">{cartError}</p>}
                         <button
                             className="checkout-btn"
                             disabled={selectedItems.length === 0}

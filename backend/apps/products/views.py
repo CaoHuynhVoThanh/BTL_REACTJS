@@ -1,4 +1,4 @@
-from django.db.models import Max, Min, Q
+from django.db.models import Max, Min, Q, Sum
 from rest_framework import generics, filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
@@ -84,6 +84,7 @@ class ProductListView(generics.ListAPIView):
         qs = Product.objects.annotate(
             min_price=Min("variants__price"),
             max_price=Max("variants__price"),
+            total_stock=Sum("variants__stock"),
         ).select_related(
             "product_type", "series", "category"
         ).prefetch_related("images", "variants")

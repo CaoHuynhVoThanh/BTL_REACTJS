@@ -58,6 +58,34 @@
     height: 100%;
 }
 
+.product-show4-image-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.product-show4-image-wrap img {
+    display: block;
+}
+
+.product-show4-card-out img {
+    filter: grayscale(0.25);
+    opacity: 0.72;
+}
+
+.product-show4-stock-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(20, 20, 20, 0.86);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
 .body-video {
     width: 100%;
     aspect-ratio: 16 / 9;

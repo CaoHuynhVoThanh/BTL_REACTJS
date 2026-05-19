@@ -65,12 +65,15 @@ class ProductListSerializer(serializers.ModelSerializer):
     base_price = serializers.SerializerMethodField()
     min_price = serializers.SerializerMethodField()
     max_price = serializers.SerializerMethodField()
+    stock = serializers.SerializerMethodField()
+    quantity = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = [
             "id", "name", "product_type", "series", "category",
             "thumbnail", "base_price", "min_price", "max_price",
+            "stock", "quantity",
         ]
 
     def get_thumbnail(self, obj):
@@ -97,6 +100,15 @@ class ProductListSerializer(serializers.ModelSerializer):
             variant = obj.variants.order_by("-price").first()
             price = variant.price if variant else None
         return str(price) if price is not None else None
+
+    def get_stock(self, obj):
+        stock = getattr(obj, "total_stock", None)
+        if stock is None:
+            stock = sum(variant.stock for variant in obj.variants.all())
+        return stock or 0
+
+    def get_quantity(self, obj):
+        return self.get_stock(obj)
 
 
 # ── Detail ────────────────────────────────────────────────────────────────────

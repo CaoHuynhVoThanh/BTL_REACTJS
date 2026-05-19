@@ -80,7 +80,10 @@ function CategoryPage() {
             });
 
             const url = apiPath(`/products/?${params.toString()}`);
-            const data = await cachedJsonFetch(url, { ttl: cacheTtl.medium });
+            const data = await cachedJsonFetch(url, {
+                cacheKey: `products:stock-v1:${url}`,
+                ttl: cacheTtl.medium,
+            });
             
             if (data.results) {
                 setProducts(data.results);

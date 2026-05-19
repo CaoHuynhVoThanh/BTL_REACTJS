@@ -4,7 +4,13 @@
     display: block;
 }
 
+.item-image-wrap {
+    position: relative;
+    width: 100%;
+}
+
 .item img{
+    display: block;
     width: 100%;
     height: auto;
     border-radius: 10px 10px 0 0;
@@ -33,6 +39,25 @@
 
 .item:hover {
     transform: translateY(-5px);
+}
+
+.item-out-of-stock img {
+    filter: grayscale(0.25);
+    opacity: 0.72;
+}
+
+.item-stock-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(20, 20, 20, 0.86);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    text-transform: uppercase;
 }
 
 .price{

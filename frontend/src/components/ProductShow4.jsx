@@ -25,7 +25,7 @@ function ProductShow4() {
     const fetchNewestProducts = async () => {
       try {
         const data = await cachedJsonFetch(apiPath('/products/'), {
-          cacheKey: 'home:newest-products',
+          cacheKey: 'home:newest-products:stock-v1',
           ttl: cacheTtl.medium,
         });
         setProducts(data.results || []);
@@ -60,19 +60,26 @@ function ProductShow4() {
           1100: { slidesPerView: 4, spaceBetween: 20 },
         }}
       >
-        {products.map((p) => (
-          <SwiperSlide key={p.id}>
-            <Link to={`/product/${p.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <div className="card product-show4-card">
-                <img src={p.thumbnail || "/p1.jpg"} className="card-img-top" alt={p.name} />
-                <div className="card-body">
-                  <h5 className="card-title text-truncate">{p.name}</h5>
-                  <p className="card-text text-danger fw-bold">{formatProductPrice(p)}</p>
+        {products.map((p) => {
+          const isOutOfStock = Number(p.quantity ?? p.stock ?? p.total_stock) === 0;
+
+          return (
+            <SwiperSlide key={p.id}>
+              <Link to={`/product/${p.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className={`card product-show4-card${isOutOfStock ? " product-show4-card-out" : ""}`}>
+                  <div className="product-show4-image-wrap">
+                    <img src={p.thumbnail || "/p1.jpg"} className="card-img-top" alt={p.name} />
+                    {isOutOfStock && <span className="product-show4-stock-badge">Hết hàng</span>}
+                  </div>
+                  <div className="card-body">
+                    <h5 className="card-title text-truncate">{p.name}</h5>
+                    <p className="card-text text-danger fw-bold">{formatProductPrice(p)}</p>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          </SwiperSlide>
-        ))}
+              </Link>
+            </SwiperSlide>
+          );
+        })}
       </Swiper>
     </div>
   );

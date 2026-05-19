@@ -1,8 +1,10 @@
 from django.db import transaction
+from django.db.models import F
 from rest_framework import serializers
 
 from apps.addresses.models import Address
 from apps.cart.models import CartItem
+from apps.products.models import ProductVariant
 from .models import Order, OrderItem
 
 
@@ -58,6 +60,27 @@ class CheckoutSerializer(serializers.Serializer):
             .select_related("variant", "variant__product")
             .filter(pk__in=validated_data["cart_item_ids"], cart__user=request.user)
         )
+        variant_ids = [item.variant_id for item in cart_items]
+        locked_variants = {
+            variant.id: variant
+            for variant in ProductVariant.objects.select_for_update().filter(pk__in=variant_ids).order_by("pk")
+        }
+
+        stock_errors = []
+        for item in cart_items:
+            variant = locked_variants.get(item.variant_id)
+            if not variant:
+                stock_errors.append(f"{item.variant.name}: Sản phẩm không còn tồn tại.")
+                continue
+
+            item.variant = variant
+            if item.quantity > variant.stock:
+                stock_errors.append(
+                    f"{variant.product.name} - {variant.name}: chỉ còn {variant.stock} sản phẩm."
+                )
+
+        if stock_errors:
+            raise serializers.ValidationError({"detail": "Không đủ hàng trong kho.", "items": stock_errors})
 
         total = sum(item.subtotal for item in cart_items)
         payment_method = validated_data["payment_method"]
@@ -91,6 +114,15 @@ class CheckoutSerializer(serializers.Serializer):
                 quantity=item.quantity,
                 subtotal=item.subtotal,
             ))
+            updated = ProductVariant.objects.filter(
+                pk=item.variant_id,
+                stock__gte=item.quantity,
+            ).update(stock=F("stock") - item.quantity)
+            if not updated:
+                raise serializers.ValidationError({
+                    "detail": "Không đủ hàng trong kho.",
+                    "items": [f"{item.variant.product.name} - {item.variant.name}: số lượng vừa được người khác mua trước."],
+                })
         OrderItem.objects.bulk_create(order_items)
         CartItem.objects.filter(pk__in=[item.pk for item in cart_items]).delete()
         return order
