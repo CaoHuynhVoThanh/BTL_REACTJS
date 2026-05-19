@@ -52,6 +52,7 @@ function ProductDetail() {
   // Lấy ra giá của variant đang được chọn
   const currentVariant = product.variants.find(v => v.id === selectedVariant) || product.variants[0];
   const currentPrice = currentVariant ? currentVariant.price : 0;
+  const isOutOfStock = !currentVariant || Number(currentVariant.stock || 0) <= 0;
   const selectedColorObj = product.colors?.find(color => color.id === selectedColor) || product.colors?.[0];
 
   const openModal = (type, message) => {
@@ -62,6 +63,10 @@ function ProductDetail() {
   const handleAddToCart = async () => {
     if (!selectedVariant) {
       openModal("error", "Vui lòng chọn phiên bản sản phẩm.");
+      return;
+    }
+    if (isOutOfStock) {
+      openModal("error", "Sản phẩm đã hết hàng, không thể thêm vào giỏ hàng.");
       return;
     }
 
@@ -116,6 +121,10 @@ function ProductDetail() {
   };
 
   const handleBuyNow = async () => {
+    if (isOutOfStock) {
+      openModal("error", "Sản phẩm đã hết hàng, không thể mua ngay.");
+      return;
+    }
     await handleAddToCart();
     navigate("/cart");
   };
@@ -177,6 +186,9 @@ function ProductDetail() {
             <div className="pd-price">
               {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(currentPrice)}
             </div>
+            <div className={`pd-stock ${isOutOfStock ? "out" : "in"}`}>
+              {isOutOfStock ? "Hết hàng" : `Còn ${currentVariant.stock} sản phẩm`}
+            </div>
 
             {product.colors && product.colors.length > 0 && (
               <div className="pd-option-group">
@@ -206,10 +218,11 @@ function ProductDetail() {
                   {product.variants.map(variant => (
                     <div 
                       key={variant.id}
-                      className={`variant-btn ${selectedVariant === variant.id ? 'active' : ''}`}
+                      className={`variant-btn ${selectedVariant === variant.id ? 'active' : ''} ${Number(variant.stock || 0) <= 0 ? 'out-of-stock' : ''}`}
                       onClick={() => setSelectedVariant(variant.id)}
                     >
-                      {variant.name}
+                      <span>{variant.name}</span>
+                      {Number(variant.stock || 0) <= 0 && <small>Hết hàng</small>}
                     </div>
                   ))}
                 </div>
@@ -217,8 +230,10 @@ function ProductDetail() {
             )}
 
             <div className="pd-actions">
-              <button className="btn-add-cart" onClick={handleAddToCart}>THÊM VÀO GIỎ HÀNG</button>
-              <button className="btn-buy-now" onClick={handleBuyNow}>MUA NGAY</button>
+              <button className="btn-add-cart" onClick={handleAddToCart} disabled={isOutOfStock}>
+                {isOutOfStock ? "HẾT HÀNG" : "THÊM VÀO GIỎ HÀNG"}
+              </button>
+              <button className="btn-buy-now" onClick={handleBuyNow} disabled={isOutOfStock}>MUA NGAY</button>
             </div>
           </div>
           

@@ -123,7 +123,26 @@
     font-size: 2rem;
     color: #ff3b30;
     font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.pd-stock {
+    width: fit-content;
     margin-bottom: 30px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.pd-stock.in {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.pd-stock.out {
+    background: #fee2e2;
+    color: #991b1b;
 }
 
 .pd-option-group {
@@ -182,6 +201,10 @@
 }
 
 .variant-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
     padding: 15px 20px;
     background: #242424;
     border: 2px solid #333;
@@ -190,6 +213,16 @@
     font-size: 1rem;
     transition: all 0.3s ease;
     color: #ccc;
+}
+
+.variant-btn small {
+    color: #b91c1c;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.variant-btn.out-of-stock {
+    opacity: 0.72;
 }
 
 .variant-btn:hover {
@@ -241,6 +274,15 @@
 .btn-buy-now:hover {
     background: #e6352b;
     box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4);
+}
+
+.pd-actions button:disabled,
+.pd-actions button:disabled:hover {
+    background: #d1d5db;
+    color: #6b7280;
+    border-color: #d1d5db;
+    box-shadow: none;
+    cursor: not-allowed;
 }
 
 /* BOTTOM SECTION */
