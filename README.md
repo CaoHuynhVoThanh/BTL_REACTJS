@@ -1,164 +1,164 @@
 # Fuji Store - Fullstack React + Django REST
 
-Fuji Store la du an thuong mai dien tu mo phong cua hang may anh Fujifilm, duoc xay dung theo kien truc fullstack tach rieng frontend va backend. Du an co luong nghiep vu gan voi mot san pham thuc te: danh muc san pham, bien the, ton kho, gio hang, dat hang, ho so nguoi dung, dia chi giao hang va chatbot tu van san pham dung OpenRouter.
+Fuji Store là dự án thương mại điện tử mô phỏng cửa hàng máy ảnh Fujifilm, được xây dựng theo kiến trúc fullstack tách riêng frontend và backend. Dự án có các luồng nghiệp vụ gần với sản phẩm thực tế: danh mục sản phẩm, biến thể, tồn kho, giỏ hàng, đặt hàng, hồ sơ người dùng, địa chỉ giao hàng và chatbot tư vấn sản phẩm dùng OpenRouter.
 
-## Tong Quan
+## Tổng Quan
 
-| Hang muc | Thong tin |
+| Hạng mục | Thông tin |
 | --- | --- |
 | Frontend | React 19, Vite 8, React Router DOM 7 |
 | Backend | Django 5.2, Django REST Framework |
-| Authentication | JWT voi Simple JWT, refresh token blacklist |
-| Database dev | SQLite |
-| Media | Django media upload cho anh san pham |
+| Xác thực | JWT với Simple JWT, refresh token blacklist |
+| Database phát triển | SQLite |
+| Media | Django media upload cho ảnh sản phẩm |
 | UI libraries | Bootstrap 5, React Bootstrap, Swiper |
 | AI assistant | OpenRouter Chat Completions API |
-| Deployment support | Vercel frontend, Gunicorn/Whitenoise backend |
+| Hỗ trợ deploy | Vercel frontend, Gunicorn/Whitenoise backend |
 
-## Tinh Nang Chinh
+## Tính Năng Chính
 
-- Hien thi danh sach san pham theo series/danh muc.
-- Tim kiem san pham tren header voi goi y nhanh.
-- Loc san pham theo gia, loai, series va cac bo loc cau hinh dong.
-- Chi tiet san pham gom anh, mau sac, bien the, thong so va mo ta.
-- Hien thi trang thai het hang khi tong ton kho bang 0.
-- Gio hang cho khach vang lai bang `localStorage`.
-- Gio hang cho nguoi dung da dang nhap qua API backend.
-- Kiem tra ton kho khi them vao gio, cap nhat so luong va checkout.
-- Checkout tao don hang, luu snapshot san pham va tru ton kho an toan trong transaction.
-- Quan ly tai khoan, ho so, doi mat khau va dia chi giao hang.
-- Lich su don hang trong trang profile.
-- Chatbox noi ben phai man hinh, goi OpenRouter qua backend proxy.
-- Chatbot co context san pham tu database: ten, gia, bien the va ton kho.
+- Hiển thị danh sách sản phẩm theo series/danh mục.
+- Tìm kiếm sản phẩm trên header với gợi ý nhanh.
+- Lọc sản phẩm theo giá, loại, series và các bộ lọc cấu hình động.
+- Chi tiết sản phẩm gồm ảnh, màu sắc, biến thể, thông số và mô tả.
+- Hiển thị trạng thái hết hàng khi tổng tồn kho bằng 0.
+- Giỏ hàng cho khách vãng lai bằng `localStorage`.
+- Giỏ hàng cho người dùng đã đăng nhập qua API backend.
+- Kiểm tra tồn kho khi thêm vào giỏ, cập nhật số lượng và checkout.
+- Checkout tạo đơn hàng, lưu snapshot sản phẩm và trừ tồn kho an toàn trong transaction.
+- Quản lý tài khoản, hồ sơ, đổi mật khẩu và địa chỉ giao hàng.
+- Lịch sử đơn hàng trong trang profile.
+- Chatbox nổi bên phải màn hình, gọi OpenRouter qua backend proxy.
+- Chatbot có context sản phẩm từ database: tên, giá, biến thể và tồn kho.
 
-## Cong Nghe Su Dung
+## Công Nghệ Sử Dụng
 
 ### Frontend
 
-- **React 19**: xay dung giao dien component-based.
-- **Vite 8**: dev server va build tool toc do cao.
-- **React Router DOM 7**: dieu huong SPA.
-- **Bootstrap 5 / React Bootstrap**: layout va mot so thanh phan UI.
-- **Swiper**: carousel san pham tren trang chu.
-- **CSS module theo component**: moi man hinh/component co file CSS rieng.
+- **React 19**: xây dựng giao diện theo component.
+- **Vite 8**: dev server và build tool tốc độ cao.
+- **React Router DOM 7**: điều hướng SPA.
+- **Bootstrap 5 / React Bootstrap**: layout và một số thành phần UI.
+- **Swiper**: carousel sản phẩm trên trang chủ.
+- **CSS theo component**: mỗi màn hình/component có file CSS riêng.
 - **Browser storage**:
-  - `localStorage`: token dang nhap va gio hang khach vang lai.
-  - `sessionStorage`: cache API ngan han cho danh sach/chi tiet san pham.
+  - `localStorage`: token đăng nhập và giỏ hàng khách vãng lai.
+  - `sessionStorage`: cache API ngắn hạn cho danh sách/chi tiết sản phẩm.
 
 ### Backend
 
-- **Django 5.2**: web framework chinh.
-- **Django REST Framework**: xay dung REST API.
-- **Simple JWT**: cap va refresh access token.
-- **django-filter**: loc du lieu san pham.
-- **Pillow**: xu ly anh upload.
-- **Whitenoise**: phuc vu static files khi deploy.
+- **Django 5.2**: web framework chính.
+- **Django REST Framework**: xây dựng REST API.
+- **Simple JWT**: cấp và refresh access token.
+- **django-filter**: lọc dữ liệu sản phẩm.
+- **Pillow**: xử lý ảnh upload.
+- **Whitenoise**: phục vụ static files khi deploy.
 - **Gunicorn**: WSGI server cho production.
-- **python-dotenv**: doc bien moi truong local tu `.env`.
-- **SQLite**: database dev mac dinh.
+- **python-dotenv**: đọc biến môi trường local từ `.env`.
+- **SQLite**: database phát triển mặc định.
 
 ### AI / Chatbot
 
 - Backend proxy endpoint: `POST /api/chatbot/`.
 - OpenRouter endpoint: `https://openrouter.ai/api/v1/chat/completions`.
-- Model mac dinh: `openai/gpt-4o-mini`.
-- API key chi nam o backend environment, khong dua vao frontend.
-- Lich su chat chi duoc giu trong React state cua lan mo trang hien tai.
-- Moi request chatbot se lay context san pham lien quan tu DB de tra loi ve gia va ton kho.
+- Model mặc định: `openai/gpt-4o-mini`.
+- API key chỉ nằm ở backend environment, không đưa vào frontend.
+- Lịch sử chat chỉ được giữ trong React state của lần mở trang hiện tại.
+- Mỗi request chatbot sẽ lấy context sản phẩm liên quan từ DB để trả lời về giá và tồn kho.
 
-## Kien Truc Thu Muc
+## Kiến Trúc Thư Mục
 
 ```text
 BTL_REACTJS/
-├── backend/
-│   ├── apps/
-│   │   ├── authentication/   # Dang ky, dang nhap, logout, OTP, reset password
-│   │   ├── users/            # Ho so nguoi dung, doi mat khau
-│   │   ├── addresses/        # So dia chi giao hang
-│   │   ├── products/         # Loai, series, danh muc, san pham, bien the, ton kho
-│   │   ├── cart/             # Gio hang nguoi dung
-│   │   ├── orders/           # Checkout, don hang, order items
-│   │   └── chatbot/          # Proxy OpenRouter va context san pham DB
-│   ├── backend/              # Settings, urls, ASGI/WSGI
-│   ├── media/                # Anh san pham upload local
-│   ├── db.sqlite3            # Database local
-│   └── requirements.txt
-│
-├── frontend/
-│   ├── public/               # Static assets, logo, icon chatbox
-│   ├── src/
-│   │   ├── components/       # UI pages/components
-│   │   ├── utils/            # API helper, guest cart helper
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   ├── package.json
-│   └── vite.config.js
-│
-└── README.md
+|-- backend/
+|   |-- apps/
+|   |   |-- authentication/   # Đăng ký, đăng nhập, logout, OTP, reset password
+|   |   |-- users/            # Hồ sơ người dùng, đổi mật khẩu
+|   |   |-- addresses/        # Sổ địa chỉ giao hàng
+|   |   |-- products/         # Loại, series, danh mục, sản phẩm, biến thể, tồn kho
+|   |   |-- cart/             # Giỏ hàng người dùng
+|   |   |-- orders/           # Checkout, đơn hàng, order items
+|   |   `-- chatbot/          # Proxy OpenRouter và context sản phẩm DB
+|   |-- backend/              # Settings, urls, ASGI/WSGI
+|   |-- media/                # Ảnh sản phẩm upload local
+|   |-- db.sqlite3            # Database local
+|   `-- requirements.txt
+|
+|-- frontend/
+|   |-- public/               # Static assets, logo, icon chatbox
+|   |-- src/
+|   |   |-- components/       # UI pages/components
+|   |   |-- utils/            # API helper, guest cart helper
+|   |   |-- App.jsx
+|   |   `-- main.jsx
+|   |-- package.json
+|   `-- vite.config.js
+|
+`-- README.md
 ```
 
-## API Chinh
+## API Chính
 
 ### Authentication
 
-| Method | Endpoint | Mo ta |
+| Method | Endpoint | Mô tả |
 | --- | --- | --- |
-| POST | `/api/auth/register/` | Dang ky tai khoan |
-| POST | `/api/auth/login/` | Dang nhap va nhan JWT |
-| POST | `/api/auth/logout/` | Logout va blacklist refresh token |
+| POST | `/api/auth/register/` | Đăng ký tài khoản |
+| POST | `/api/auth/login/` | Đăng nhập và nhận JWT |
+| POST | `/api/auth/logout/` | Logout và blacklist refresh token |
 | POST | `/api/auth/token/refresh/` | Refresh access token |
-| POST | `/api/auth/send-otp/` | Gui OTP |
-| POST | `/api/auth/verify-otp/` | Xac minh OTP |
-| POST | `/api/auth/reset-password/` | Dat lai mat khau |
+| POST | `/api/auth/send-otp/` | Gửi OTP |
+| POST | `/api/auth/verify-otp/` | Xác minh OTP |
+| POST | `/api/auth/reset-password/` | Đặt lại mật khẩu |
 
 ### Products
 
-| Method | Endpoint | Mo ta |
+| Method | Endpoint | Mô tả |
 | --- | --- | --- |
-| GET | `/api/product-types/` | Danh sach loai san pham |
-| GET | `/api/series/` | Danh sach series |
-| GET | `/api/categories/` | Danh sach danh muc |
-| GET | `/api/products/` | Danh sach san pham, filter, search, pagination |
-| GET | `/api/products/{id}/` | Chi tiet san pham |
+| GET | `/api/product-types/` | Danh sách loại sản phẩm |
+| GET | `/api/series/` | Danh sách series |
+| GET | `/api/categories/` | Danh sách danh mục |
+| GET | `/api/products/` | Danh sách sản phẩm, filter, search, pagination |
+| GET | `/api/products/{id}/` | Chi tiết sản phẩm |
 
 ### Cart & Checkout
 
-| Method | Endpoint | Mo ta |
+| Method | Endpoint | Mô tả |
 | --- | --- | --- |
-| GET | `/api/cart/` | Lay gio hang |
-| POST | `/api/cart/add/` | Them san pham vao gio |
-| PUT | `/api/cart/{item_id}/` | Cap nhat so luong/bien the |
-| DELETE | `/api/cart/{item_id}/` | Xoa san pham khoi gio |
-| POST | `/api/checkout/` | Tao don hang va tru ton kho |
+| GET | `/api/cart/` | Lấy giỏ hàng |
+| POST | `/api/cart/add/` | Thêm sản phẩm vào giỏ |
+| PUT | `/api/cart/{item_id}/` | Cập nhật số lượng/biến thể |
+| DELETE | `/api/cart/{item_id}/` | Xóa sản phẩm khỏi giỏ |
+| POST | `/api/checkout/` | Tạo đơn hàng và trừ tồn kho |
 
 ### Users, Addresses, Orders
 
-| Method | Endpoint | Mo ta |
+| Method | Endpoint | Mô tả |
 | --- | --- | --- |
-| GET/PUT | `/api/users/me/` | Xem/cap nhat ho so |
-| POST | `/api/users/change-password/` | Doi mat khau |
-| GET/POST | `/api/addresses/` | Danh sach/them dia chi |
-| PUT/DELETE | `/api/addresses/{id}/` | Sua/xoa dia chi |
-| POST | `/api/addresses/{id}/set-default/` | Dat dia chi mac dinh |
-| GET | `/api/orders/` | Lich su don hang |
-| GET | `/api/orders/{id}/` | Chi tiet don hang |
+| GET/PUT | `/api/users/me/` | Xem/cập nhật hồ sơ |
+| POST | `/api/users/change-password/` | Đổi mật khẩu |
+| GET/POST | `/api/addresses/` | Danh sách/thêm địa chỉ |
+| PUT/DELETE | `/api/addresses/{id}/` | Sửa/xóa địa chỉ |
+| POST | `/api/addresses/{id}/set-default/` | Đặt địa chỉ mặc định |
+| GET | `/api/orders/` | Lịch sử đơn hàng |
+| GET | `/api/orders/{id}/` | Chi tiết đơn hàng |
 
 ### Chatbot
 
-| Method | Endpoint | Mo ta |
+| Method | Endpoint | Mô tả |
 | --- | --- | --- |
-| POST | `/api/chatbot/` | Gui tin nhan den chatbot, backend them context san pham tu DB va goi OpenRouter |
+| POST | `/api/chatbot/` | Gửi tin nhắn đến chatbot, backend thêm context sản phẩm từ DB và gọi OpenRouter |
 
-## Xu Ly Ton Kho
+## Xử Lý Tồn Kho
 
-Du an khong chi hien thi ton kho o frontend. Backend co cac lop bao ve:
+Dự án không chỉ hiển thị tồn kho ở frontend. Backend có các lớp bảo vệ:
 
-- Khi them/cap nhat gio hang, API kiem tra so luong khong vuot qua `variant.stock`.
-- Khi checkout, backend dung transaction va cap nhat co dieu kien `stock >= quantity`.
-- Neu hai nguoi cung dat mot bien the, request den sau se bi tu choi neu ton kho khong con du.
-- Don hang luu snapshot san pham tai thoi diem mua: ten san pham, bien the, gia, so luong, anh.
+- Khi thêm/cập nhật giỏ hàng, API kiểm tra số lượng không vượt quá `variant.stock`.
+- Khi checkout, backend dùng transaction và cập nhật có điều kiện `stock >= quantity`.
+- Nếu hai người cùng đặt một biến thể, request đến sau sẽ bị từ chối nếu tồn kho không còn đủ.
+- Đơn hàng lưu snapshot sản phẩm tại thời điểm mua: tên sản phẩm, biến thể, giá, số lượng, ảnh.
 
-## Cai Dat Local
+## Cài Đặt Local
 
 ### 1. Backend
 
@@ -172,7 +172,7 @@ python manage.py migrate
 python manage.py runserver 127.0.0.1:8000
 ```
 
-Bien moi truong backend can co:
+Biến môi trường backend cần có:
 
 ```env
 SECRET_KEY=django-insecure-change-this-in-production
@@ -193,19 +193,19 @@ npm install
 npm run dev
 ```
 
-Bien moi truong frontend:
+Biến môi trường frontend:
 
 ```env
 VITE_API_URL=http://127.0.0.1:8000
 ```
 
-Frontend chay tai:
+Frontend chạy tại:
 
 ```text
 http://127.0.0.1:5173
 ```
 
-Backend API chay tai:
+Backend API chạy tại:
 
 ```text
 http://127.0.0.1:8000/api
@@ -227,14 +227,14 @@ cd backend
 python manage.py check
 ```
 
-## Bao Mat Va Deploy
+## Bảo Mật Và Deploy
 
-- Khong commit `.env`, API key, token, database production hoac file cache.
-- `OPENROUTER_API_KEY` phai dat trong environment cua backend server khi deploy.
-- Frontend khong goi OpenRouter truc tiep de tranh lo key.
-- Neu key da tung bi lo, hay rotate key tren OpenRouter.
-- Khi deploy frontend, dat `VITE_API_URL` tro ve backend production.
-- Khi deploy backend, can cau hinh:
+- Không commit `.env`, API key, token, database production hoặc file cache.
+- `OPENROUTER_API_KEY` phải đặt trong environment của backend server khi deploy.
+- Frontend không gọi OpenRouter trực tiếp để tránh lộ key.
+- Nếu key đã từng bị lộ, hãy rotate key trên OpenRouter.
+- Khi deploy frontend, đặt `VITE_API_URL` trỏ về backend production.
+- Khi deploy backend, cần cấu hình:
   - `SECRET_KEY`
   - `DEBUG=False`
   - `ALLOWED_HOSTS`
@@ -245,27 +245,27 @@ python manage.py check
 
 Frontend:
 
-| Lenh | Cong dung |
+| Lệnh | Công dụng |
 | --- | --- |
-| `npm run dev` | Chay Vite dev server |
+| `npm run dev` | Chạy Vite dev server |
 | `npm run build` | Build production |
-| `npm run preview` | Preview ban build |
-| `npm run lint` | Chay ESLint |
+| `npm run preview` | Preview bản build |
+| `npm run lint` | Chạy ESLint |
 
 Backend:
 
-| Lenh | Cong dung |
+| Lệnh | Công dụng |
 | --- | --- |
-| `python manage.py runserver` | Chay dev server |
-| `python manage.py migrate` | Chay migrations |
-| `python manage.py createsuperuser` | Tao admin |
-| `python manage.py check` | Kiem tra cau hinh Django |
+| `python manage.py runserver` | Chạy dev server |
+| `python manage.py migrate` | Chạy migrations |
+| `python manage.py createsuperuser` | Tạo admin |
+| `python manage.py check` | Kiểm tra cấu hình Django |
 
-## Ghi Chu Phat Trien
+## Ghi Chú Phát Triển
 
-- Du an hien chua dung global state manager nhu Redux/Zustand/Context cho data chinh.
-- Trang thai UI chu yeu nam trong `useState` cua tung component.
-- Cache danh sach/chi tiet san pham dung `sessionStorage`.
-- Gio hang guest dung `localStorage`.
-- Chatbot history chi ton tai trong lan mo trang hien tai.
+- Dự án hiện chưa dùng global state manager như Redux/Zustand/Context cho data chính.
+- Trạng thái UI chủ yếu nằm trong `useState` của từng component.
+- Cache danh sách/chi tiết sản phẩm dùng `sessionStorage`.
+- Giỏ hàng guest dùng `localStorage`.
+- Chatbot history chỉ tồn tại trong lần mở trang hiện tại.
 
